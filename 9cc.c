@@ -22,6 +22,7 @@ struct Token
     Token *next;    //次の入力トークン
     int val;        //kindがTK_NUMの場合，その数値
     char *str;      //トークン文字列
+    int len;        //トークンの長さ
 };
 
 //現在見ているトークン
@@ -176,6 +177,7 @@ Node *new_node_num(int val)
 Node *expr();
 Node *mul();
 Node *primary();
+Node *unary();
 
 Node *expr()
 {
@@ -200,17 +202,17 @@ Node *expr()
 
 Node *mul()
 {
-    Node *node = primary();
+    Node *node = unary();
 
     for (;;)
     {
         if (consume('*'))
         {
-            node = new_node(ND_MUL, node, primary());
+            node = new_node(ND_MUL, node, unary());
         }
         else if (consume('/'))
         {
-            node = new_node(ND_DIV, node, primary());
+            node = new_node(ND_DIV, node, unary());
         }
         else
         {
@@ -228,6 +230,21 @@ Node *primary()
         return node;
     }
     return new_node_num(expect_number());
+}
+
+Node *unary()
+{
+    //+x→xに置き換え
+    if (consume('+'))
+    {
+        return primary();
+    }
+    //-x→0-xに置き換え
+    if (consume('-'))
+    {
+        return new_node(ND_SUB, new_node_num(0), primary());
+    }
+    return primary();
 }
 
 void gen(Node *node)
