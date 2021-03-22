@@ -170,7 +170,7 @@ static Node *primary(Token **rest, Token *tok)
     error_tok(tok, "入力がおかしい");
 }
 
-Node *parser(Token *tok)
+Node *parse(Token *tok)
 {
     Node *node = expr(&tok, tok);
     if (tok->kind != TK_EOF)
